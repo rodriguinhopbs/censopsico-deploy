@@ -5,7 +5,7 @@ Ele e sincronizado automaticamente para o repositorio publico de deploy.
 
 ## Arquivos
 
-- `docker-compose.yml`: stack de producao (postgres + migrate + web + nginx)
+- `docker-compose.yml`: stack de producao (redis + postgres + migrate + web + nginx)
 - `.env.example`: template sem segredos
 - `nginx/`: configuracao de proxy reverso para internet
 - `certs/`: ponto de montagem dos certificados TLS
@@ -29,6 +29,7 @@ Ele e sincronizado automaticamente para o repositorio publico de deploy.
    - `POSTGRES_PASSWORD`
    - `SECRET_KEY`
    - `APP_IMAGE` e `APP_IMAGE_TAG` (se necessario)
+   - `RATELIMIT_STORAGE_URI` (manter redis://redis:6379/0, salvo excecao)
 
 3. Suba a stack:
 
@@ -49,6 +50,7 @@ Ele e sincronizado automaticamente para o repositorio publico de deploy.
 - O Nginx e o unico servico exposto externamente nas portas 80/443
 - A aplicacao Flask fica somente na rede interna do Compose
 - Para HTTPS, ative os blocos TLS em nginx/default.conf e forneca certificados em certs/
+- O rate limit usa Redis compartilhado para funcionar corretamente com multiplos workers
 
 ## Reutilizacao de dados do ambiente existente
 

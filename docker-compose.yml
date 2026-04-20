@@ -1,6 +1,18 @@
 name: ${COMPOSE_PROJECT_NAME:-censo_psico_nr1}
 
 services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
+
   postgres:
     image: postgres:17
     restart: unless-stopped
@@ -22,6 +34,8 @@ services:
     restart: "no"
     pull_policy: always
     depends_on:
+      redis:
+        condition: service_healthy
       postgres:
         condition: service_healthy
     environment:
@@ -31,6 +45,7 @@ services:
       OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      RATELIMIT_STORAGE_URI: ${RATELIMIT_STORAGE_URI:-redis://redis:6379/0}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       REMEMBER_COOKIE_SECURE: ${REMEMBER_COOKIE_SECURE:-true}
       RUN_MIGRATIONS_ON_STARTUP: "false"
@@ -41,6 +56,8 @@ services:
     restart: unless-stopped
     pull_policy: always
     depends_on:
+      redis:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       migrate:
@@ -61,6 +78,7 @@ services:
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      RATELIMIT_STORAGE_URI: ${RATELIMIT_STORAGE_URI:-redis://redis:6379/0}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       REMEMBER_COOKIE_SECURE: ${REMEMBER_COOKIE_SECURE:-true}
       RUN_MIGRATIONS_ON_STARTUP: "false"
@@ -86,5 +104,6 @@ services:
       retries: 3
 
 volumes:
+  redis_data:
   postgres_data:
   nginx_logs:
