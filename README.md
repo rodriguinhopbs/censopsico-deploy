@@ -28,8 +28,13 @@ Ele e sincronizado automaticamente para o repositorio publico de deploy.
    - `COMPOSE_PROJECT_NAME` (mantenha o mesmo nome do ambiente antigo)
    - `POSTGRES_PASSWORD`
    - `SECRET_KEY`
+   - `SYSTEM_ADMIN_EMAIL` e `SYSTEM_ADMIN_PASSWORD`
    - `APP_IMAGE` e `APP_IMAGE_TAG` (se necessario)
    - `RATELIMIT_STORAGE_URI` (manter redis://redis:6379/0, salvo excecao)
+
+   O bootstrap do administrador inicial roda dentro dos containers `migrate` e `web`.
+   Por isso, as variaveis `SYSTEM_ADMIN_*` precisam estar presentes no `.env` usado pelo
+   `docker compose --env-file .env ...`.
 
 3. Suba a stack:
 
